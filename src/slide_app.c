@@ -2336,10 +2336,16 @@ int app_trigger_fops_oracle_slot(size_t slot) {
 #else
 int app_trigger_fops_slide_route(void) {
   static size_t delay_index;
+#ifdef APP_FOPS_ROUTE_DELAY_LIST
+  /* S936W 6.6.30 bringup: sweep the writer/owner overlap widely in one
+   * batch (default 20-90ms may systematically miss the true window). */
+  static const int delays[] = { APP_FOPS_ROUTE_DELAY_LIST };
+#else
   static const int delays[] = {
     70000, 60000, 80000, 40000, 90000, 50000,
     30000, 20000, 75000, 65000, 85000, 55000,
   };
+#endif
 #if defined(APP_CLOSED_FOPS_ROUTE) && APP_CLOSED_FOPS_ROUTE
   slide_oracle_parent = fake_fops;
   slide_oracle_target = data_addr(ASHMEM_MISC_FOPS);
