@@ -344,6 +344,8 @@ int try_cache_ashmem_path(const char *path);
 int same_rdev_path(const char *path, dev_t rdev);
 void init_ashmem_path(void);
 int open_ashmem_device(void);
+uintptr_t p0_kernel_phys_load(void);
+void p0_phys_load_override_init(void);
 uintptr_t p0_data_alias(uintptr_t image_addr);
 uintptr_t p0_alias_image_offset(uintptr_t data_alias);
 uintptr_t data_addr(uintptr_t image_addr);

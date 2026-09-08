@@ -430,6 +430,7 @@ int run_exploit(int argc, char **argv) {
 
   disable_rseq_for_thread();
   set_limit();
+  p0_phys_load_override_init();
   log_startup_context();
   init_ashmem_path();
 

