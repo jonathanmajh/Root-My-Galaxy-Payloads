@@ -331,6 +331,20 @@
         "url": "https://raw.githubusercontent.com/BuSung-dev/Root-My-Galaxy-Payloads/main/kernelsu/ksud-e3q-S9280ZCS6DZF2-kdp",
         "size": 4879856
       }
+    },
+    {
+      "payloadId": "pa2q-S936WVLU4AYDQ",
+      "displayName": "Galaxy S25+ SM-S936W | Kernel 6.6.30 (S936WVLU4AYDQ)",
+      "models": ["SM-S936W"],
+      "kernelVersions": ["6.6.30"],
+      "exploit": {
+        "url": "https://raw.githubusercontent.com/BuSung-dev/Root-My-Galaxy-Payloads/main/artifacts/pa2q-S936WVLU4AYDQ/cve-2026-43499-app.so",
+        "size": 104128
+      },
+      "kernelsu": {
+        "url": "https://raw.githubusercontent.com/BuSung-dev/Root-My-Galaxy-Payloads/main/kernelsu/ksud-s25u-kdp",
+        "size": 6407096
+      }
     }
   ]
 }
