@@ -11,7 +11,7 @@
  * writer/owner overlap (timing). Sweep widely + retry more pages per
  * attempt. Drop back to defaults once the working delay is known. */
 #define APP_FOPS_ROUTE_DELAY_LIST \
-  0, 2000, 5000, 8000, 12000, 15000, 20000, 25000, 30000, 40000, 50000, \
+  2000, 5000, 8000, 12000, 15000, 20000, 25000, 30000, 40000, 50000, \
   60000, 70000, 80000, 90000, 100000, 125000, 150000
 #define APP_FOPS_FRESH_PAGE_ATTEMPTS 4
 #else
